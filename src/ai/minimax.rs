@@ -1,4 +1,7 @@
 use core::f32;
+use std::cmp::Ordering;
+
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::engine::{board_state::BoardState, field::Field};
 
@@ -93,25 +96,30 @@ impl CubesAlgorithm for MiniMax {
         if moves.len() == 1 {
             return moves[0];
         }
-        let mut values: Vec<((usize, usize), f32)> = vec![];
-        for legal_move in 0..moves.len() {
-            let bool_current_player = state.current_player().to_bool();
-            let score = Self::evaluate(
-                &state.clone(),
-                STANDARD_DEPTH,
-                f32::NEG_INFINITY,
-                f32::INFINITY,
-                bool_current_player,
-                bool_current_player,
-            );
-            values.push((moves[legal_move], score));
-        }
-        let mut best_move: ((usize, usize), f32) = values[0];
-        for evaluated_move in values {
-            if evaluated_move.1 > best_move.1 {
-                best_move = evaluated_move;
-            }
-        }
-        return best_move.0;
+        let max_var = moves
+            .par_iter()
+            .map(|legal_move| {
+                let bool_current_player = state.current_player().to_bool();
+                let score = Self::evaluate(
+                    &state.clone(),
+                    STANDARD_DEPTH,
+                    f32::NEG_INFINITY,
+                    f32::INFINITY,
+                    bool_current_player,
+                    bool_current_player,
+                );
+                return (legal_move, score);
+            })
+            .max_by(|item_a, item_b| {
+                if item_a.0 > item_b.0 {
+                    Ordering::Greater
+                } else if (item_a.0 < item_b.0) {
+                    Ordering::Less
+                } else {
+                    Ordering::Equal
+                }
+            })
+            .unwrap();
+        return *(max_var.0);
     }
 }
