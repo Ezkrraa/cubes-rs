@@ -3,6 +3,10 @@ use float_engine::{field::Field, float_state::FloatState};
 mod ai;
 mod ui;
 use ai::{cubes_algorithm::CubesAlgorithm, minimax::MiniMax};
+use std::time::Instant;
+
+// optimized make_move
+//
 
 fn main() {
     let mut board: FloatState = FloatState::blank();
@@ -24,9 +28,10 @@ fn main() {
         }
 
         println!("{:?}", board.get_legal_moves());
-
+        let before = Instant::now();
         let picked_move = minimax.pick_move(board.clone());
         let result = board.make_move(picked_move);
+        println!("{:.2?}", before.elapsed());
         if result.is_err() {
             println!("Error making move")
         } else {
