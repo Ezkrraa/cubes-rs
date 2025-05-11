@@ -1,11 +1,11 @@
-mod engine;
-use engine::{board_state, field::Field};
+mod float_engine;
+use float_engine::{field::Field, float_state::FloatState};
 mod ai;
 mod ui;
 use ai::{cubes_algorithm::CubesAlgorithm, minimax::MiniMax};
 
 fn main() {
-    let mut board: board_state::BoardState = board_state::BoardState::blank();
+    let mut board: FloatState = FloatState::blank();
     let minimax = MiniMax {};
     while board.winner().is_none() {
         let picked_move = board.pick_coord();
@@ -15,13 +15,15 @@ fn main() {
         }
         let result = board.make_move(picked_move.unwrap());
         if result.is_err() {
-            println!("Error making move")
+            println!("Error making move on board: {:?}", board)
         } else {
             board = result.unwrap();
         }
         if !board.winner().is_none() {
             break;
         }
+
+        println!("{:?}", board.get_legal_moves());
 
         let picked_move = minimax.pick_move(board.clone());
         let result = board.make_move(picked_move);

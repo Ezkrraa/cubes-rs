@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-use crate::board_state::BoardState;
+use crate::FloatState;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
@@ -14,12 +14,12 @@ enum DirectionInput {
     Stop,
 }
 
-impl BoardState {
+impl FloatState {
     pub fn print(&self) {
-        for z in 0..4 {
-            for y in 0..4 {
-                for x in 0..4 {
-                    print!("{} ", self.board[z][y][x].char())
+        for z in 0..4u64 {
+            for y in 0..4u64 {
+                for x in 0..4u64 {
+                    print!("{} ", self.get_on_index(z * 16 + y * 4 + x).char())
                 }
                 print!("\n")
             }
@@ -27,14 +27,20 @@ impl BoardState {
         }
     }
 
-    fn print_highlight(&self, coord: (usize, usize, usize)) {
-        for z in 0..4 {
-            for y in 0..4 {
-                for x in 0..4 {
-                    if coord == (x, y, z) {
-                        print!("{} ", self.board[z][y][x].char().on_white().black())
+    fn print_highlight(&self, coord: u64) {
+        for z in 0..4u64 {
+            for y in 0..4u64 {
+                for x in 0..4u64 {
+                    if coord == (z * 16 + y * 4 + x) {
+                        print!(
+                            "{} ",
+                            self.get_on_index(z * 16 + y * 4 + x)
+                                .char()
+                                .on_white()
+                                .black()
+                        )
                     } else {
-                        print!("{} ", self.board[z][y][x].char())
+                        print!("{} ", self.get_on_index(z * 16 + y * 4 + x).char())
                     }
                 }
                 print!("\n")
@@ -44,52 +50,47 @@ impl BoardState {
     }
 
     // returns a two-dimensional coordinate (from above, X and Y)
-    pub fn pick_coord(&self) -> Result<(usize, usize), ()> {
+    pub fn pick_coord(&self) -> Result<u64, ()> {
         // XYZ coordinate
-        let mut selection: (usize, usize, usize) = (0, 0, 0);
+        let mut selection: u64 = 0;
         loop {
             println!(
-                "\n\n\n\n\n\nSelection: {}, {}, {}",
-                selection.0, selection.1, selection.2
+                "\n\n\n\n\n\nSelection: {} ({}, {}, {})",
+                selection,
+                selection % 16 % 4,
+                selection % 16 / 4,
+                selection / 16
             );
             self.print_highlight(selection);
             let direction = Self::get_direction();
             if direction == DirectionInput::Stop {
                 return Err(());
             } else if direction == DirectionInput::End {
-                return Ok((selection.0, selection.1));
+                return Ok(selection);
             } else {
                 selection = Self::move_coordinate(selection, direction);
             }
         }
     }
 
-    fn move_coordinate(
-        coordinate: (usize, usize, usize),
-        direction: DirectionInput,
-    ) -> (usize, usize, usize) {
+    fn move_coordinate(coordinate: u64, direction: DirectionInput) -> u64 {
         let mut coord = coordinate;
+        let (x, y, z) = (coord % 4, coord % 16 / 4, coord / 16);
         if direction == DirectionInput::Up {
-            if coord.1 > 0 {
-                coord.1 -= 1;
-            } else if coord.2 > 0 {
-                coord.2 -= 1;
-                coord.1 = 3;
+            if y > 0 || z > 0 {
+                coord -= 4
             }
         } else if direction == DirectionInput::Down {
-            if coord.1 < 3 {
-                coord.1 += 1;
-            } else if coord.2 < 3 {
-                coord.2 += 1;
-                coord.1 = 0;
+            if y < 3 || z < 3 {
+                coord += 4;
             }
         } else if direction == DirectionInput::Left {
-            if coord.0 > 0 {
-                coord.0 -= 1;
+            if x > 0 {
+                coord -= 1;
             }
         } else if direction == DirectionInput::Right {
-            if coord.0 < 3 {
-                coord.0 += 1;
+            if x < 3 {
+                coord += 1;
             }
         }
         return coord;

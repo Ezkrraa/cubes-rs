@@ -316,7 +316,7 @@ impl BoardState {
                 ],
             );
             total_score += Self::count_line_score(
-                count_for,
+                count_for, 
                 [
                     self.board[0][3][3],
                     self.board[1][2][2],
