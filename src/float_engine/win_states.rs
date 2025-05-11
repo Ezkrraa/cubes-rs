@@ -136,21 +136,11 @@ impl FloatState {
             return Some(self.get_on_index(0 * 16 + 3 * 4 + 3));
         }
 
-        let mut empty_found = false;
-        for z in 0..4 {
-            for y in 0..4 {
-                for x in 0..4 {
-                    if self.get_on_index(z * 16 + y * 4 + x) == Field::Empty {
-                        empty_found = true;
-                    }
-                }
-            }
-        }
-        if empty_found {
-            return None;
-        } else {
+        if !(self.board.0 | self.board.1) == 0 {
+            // all fields were filled
             return Some(Field::Empty);
         }
+        return None;
     }
 
     fn check_line(&self, coords: (u64, u64, u64, u64)) -> Field {
