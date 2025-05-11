@@ -6,26 +6,8 @@ use crate::float_engine::{field::Field, float_state::FloatState};
 
 use super::cubes_algorithm::CubesAlgorithm;
 
-// unsorted:
-// 3:     15204
-// 3:     23997
-// 4:     54171
-// 4:     53916
-// 5:    584016
-// 5:    806971
-// 5:   1091447
-// 6:   3620401
-// 6:   3612290
-// 7:  21935552
-// 7:  21945426
-// 7:  28840632
-// 8: 164691231
-
-// sorted:
-// 7: ...
-
-const STANDARD_DEPTH: i32 = 5;
-static mut total_passes: u64 = 0;
+const STANDARD_DEPTH: i32 = 8;
+static mut TOTAL_PASSES: u64 = 0;
 
 pub struct MiniMax {}
 
@@ -38,10 +20,10 @@ impl MiniMax {
         eval_for: bool,
         move_as: bool,
     ) -> f32 {
-        assert!(depth > -1);
-        assert!(state.is_valid());
+        debug_assert!(depth > -1);
+        debug_assert!(state.is_valid());
         let winner = state.winner();
-        unsafe { total_passes += 1 };
+        unsafe { TOTAL_PASSES += 1 };
         if winner.is_some() {
             if winner.unwrap() != Field::Empty {
                 let score: f32;
@@ -55,30 +37,18 @@ impl MiniMax {
             }
             return 0.0;
         }
-        // let mut moves: Vec<(u64, f32)> = state
-        //     .get_legal_moves()
-        //     .into_iter()
-        //     .map(|legal_move| {
-        //         (
-        //             legal_move,
-        //             Self::simple_eval(
-        //                 &state.make_move(legal_move).unwrap(),
-        //                 Field::from_bool(player),
-        //             ),
-        //         )
-        //     })
-        //     .collect();
-        let moves: Vec<u64> = state.get_legal_moves();
-        if depth <= 0 || moves.len() == 0 {
+        if depth <= 0 {
+            return Self::simple_eval(state, eval_for);
+        }
+        let moves: ([u64; 16], usize) = state.get_legal_moves();
+        if moves.1 == 0 {
             return Self::simple_eval(state, eval_for);
         }
 
-        // moves.sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(Ordering::Equal));
-
         if move_as {
             let mut value = f32::NEG_INFINITY;
-            for evaluate_move in moves {
-                let new_state = state.make_move(evaluate_move).unwrap();
+            for i in 0..moves.1 {
+                let new_state = state.make_move(moves.0[i]).unwrap();
                 value = value.max(Self::evaluate(
                     &new_state,
                     depth - 1,
@@ -95,8 +65,8 @@ impl MiniMax {
             return value;
         } else {
             let mut value = f32::INFINITY;
-            for evaluate_move in moves {
-                let new_state = state.make_move(evaluate_move).unwrap();
+            for i in 0..moves.1 {
+                let new_state = state.make_move(moves.0[i]).unwrap();
                 value = value.min(Self::evaluate(
                     &new_state,
                     depth - 1,
@@ -128,13 +98,13 @@ impl MiniMax {
 impl CubesAlgorithm for MiniMax {
     #[allow(static_mut_refs)]
     fn pick_move(&self, state: FloatState) -> u64 {
-        let moves: Vec<u64> = state.get_legal_moves();
-        assert!(moves.len() > 0);
-        if moves.len() == 1 {
-            return moves[0];
+        let moves: ([u64; 16], usize) = state.get_legal_moves();
+        debug_assert!(moves.1 > 0);
+        if moves.1 == 1 {
+            return moves.0[0];
         }
         let bool_current_player = state.get_current_player();
-        let evals: Vec<(&u64, f32)> = moves
+        let evals: Vec<(&u64, f32)> = moves.0[0..moves.1]
             .par_iter()
             .map(|legal_move| {
                 let score = Self::evaluate(
@@ -151,8 +121,8 @@ impl CubesAlgorithm for MiniMax {
             .collect();
         println!("{:?}", evals);
         unsafe {
-            println!("{}", total_passes.clone());
-            total_passes = 0;
+            println!("Evaluated {} branches", TOTAL_PASSES);
+            TOTAL_PASSES = 0;
         };
         let mut highest = evals[0];
         for eval in evals {
@@ -160,7 +130,7 @@ impl CubesAlgorithm for MiniMax {
                 highest = eval
             }
         }
-        println!("Picked {:?} with value {:?}", *(highest.0), highest.1);
-        return *(highest.0);
+        println!("Picked {:?} with value {:?}", highest.0, highest.1);
+        return *highest.0;
     }
 }

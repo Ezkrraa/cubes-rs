@@ -15,7 +15,7 @@ impl Field {
     }
 
     pub fn to_bool(&self) -> bool {
-        assert!(*self != Field::Empty);
+        debug_assert!(*self != Field::Empty);
         if *self != Field::White {
             return true;
         } else {
@@ -32,7 +32,7 @@ impl Field {
     }
 
     pub fn get_opposite(&self) -> Self {
-        assert!(*self != Field::Empty);
+        debug_assert!(*self != Field::Empty);
         if *self == Self::White {
             return Self::Black;
         } else {

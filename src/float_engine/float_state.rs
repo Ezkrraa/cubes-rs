@@ -28,7 +28,7 @@ impl FloatState {
     }
 
     pub fn is_column_with_space(&self, coord: u64) -> bool {
-        assert!(coord < 16);
+        debug_assert!(coord < 16);
         return self.is_empty(coord + 48)
             || self.is_empty(coord + 32)
             || self.is_empty(coord + 16)
@@ -36,8 +36,8 @@ impl FloatState {
     }
 
     pub fn get_on_index(&self, coord: u64) -> Field {
-        assert!(self.is_valid());
-        assert!(coord < 64);
+        debug_assert!(self.is_valid());
+        debug_assert!(coord < 64);
         let bitmask = 1u64 << coord;
         if (self.board.0 & bitmask) > 0 {
             return Field::White;
@@ -52,7 +52,7 @@ impl FloatState {
     }
 
     fn new_from(old: &Self, coord: u64) -> Self {
-        assert!(old.get_on_index(coord) == Field::Empty);
+        debug_assert!(old.get_on_index(coord) == Field::Empty);
 
         let mut new_history = old.history.clone();
         new_history.push(coord);
@@ -70,7 +70,7 @@ impl FloatState {
     }
 
     pub fn make_move(&self, coord: u64) -> Result<Self, ()> {
-        assert!(coord < 16);
+        debug_assert!(coord < 16);
         for z in 0..4u64 {
             let new_coord = coord + (z * 16);
             if self.is_empty(new_coord) {
