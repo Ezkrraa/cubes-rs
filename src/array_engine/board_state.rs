@@ -40,7 +40,7 @@ impl BoardState {
     }
 
     fn new_from(old: &Self, coord: (usize, usize, usize)) -> Self {
-        assert!(old.board[coord.2][coord.1][coord.0] == Field::Empty);
+        debug_assert!(old.board[coord.2][coord.1][coord.0] == Field::Empty);
 
         let mut new_history: Vec<(u8, u8)> = old.history.clone();
         new_history.push((coord.0 as u8, coord.1 as u8));

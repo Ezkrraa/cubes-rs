@@ -14,29 +14,12 @@ impl Field {
         };
     }
 
-    pub fn to_bool(&self) -> bool {
-        assert!(*self != Field::Empty);
+    pub fn to_bool(self) -> bool {
+        debug_assert!(self != Field::Empty);
         return match self {
             Field::White => true,
             Field::Black => false,
             _ => false,
         };
-    }
-
-    pub fn from_bool(boo: bool) -> Self {
-        if boo {
-            return Field::White;
-        } else {
-            return Field::Black;
-        }
-    }
-
-    pub fn get_opposite(&self) -> Self {
-        assert!(*self != Field::Empty);
-        if *self == Self::White {
-            return Self::Black;
-        } else {
-            return Self::White;
-        }
     }
 }

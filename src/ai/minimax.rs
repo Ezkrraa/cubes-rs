@@ -38,10 +38,10 @@ impl MiniMax {
         eval_for: bool,
         move_as: bool,
     ) -> f32 {
-        assert!(depth > -1);
-        assert!(state.is_valid());
+        debug_assert!(depth > -1);
+        debug_assert!(state.is_valid());
         let winner = state.winner();
-        unsafe { total_passes += 1 };
+        unsafe { TOTAL_PASSES += 1 };
         if winner.is_some() {
             if winner.unwrap() != Field::Empty {
                 let score: f32;
@@ -55,25 +55,13 @@ impl MiniMax {
             }
             return 0.0;
         }
-        // let mut moves: Vec<(u64, f32)> = state
-        //     .get_legal_moves()
-        //     .into_iter()
-        //     .map(|legal_move| {
-        //         (
-        //             legal_move,
-        //             Self::simple_eval(
-        //                 &state.make_move(legal_move).unwrap(),
-        //                 Field::from_bool(player),
-        //             ),
-        //         )
-        //     })
-        //     .collect();
-        let moves: Vec<u64> = state.get_legal_moves();
-        if depth <= 0 || moves.len() == 0 {
+        if depth <= 0 {
             return Self::simple_eval(state, eval_for);
         }
-
-        // moves.sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(Ordering::Equal));
+        let moves: Vec<u64> = state.get_legal_moves();
+        if moves.len() == 0 {
+            return Self::simple_eval(state, eval_for);
+        }
 
         if move_as {
             let mut value = f32::NEG_INFINITY;
@@ -129,7 +117,7 @@ impl CubesAlgorithm for MiniMax {
     #[allow(static_mut_refs)]
     fn pick_move(&self, state: FloatState) -> u64 {
         let moves: Vec<u64> = state.get_legal_moves();
-        assert!(moves.len() > 0);
+        debug_assert!(moves.len() > 0);
         if moves.len() == 1 {
             return moves[0];
         }
@@ -151,8 +139,8 @@ impl CubesAlgorithm for MiniMax {
             .collect();
         println!("{:?}", evals);
         unsafe {
-            println!("{}", total_passes.clone());
-            total_passes = 0;
+            println!("Evaluated {} branches", TOTAL_PASSES);
+            TOTAL_PASSES = 0;
         };
         let mut highest = evals[0];
         for eval in evals {
@@ -160,7 +148,7 @@ impl CubesAlgorithm for MiniMax {
                 highest = eval
             }
         }
-        println!("Picked {:?} with value {:?}", *(highest.0), highest.1);
-        return *(highest.0);
+        println!("Picked {:?} with value {:?}", highest.0, highest.1);
+        return *highest.0;
     }
 }
