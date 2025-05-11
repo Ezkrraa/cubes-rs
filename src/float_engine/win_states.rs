@@ -4,7 +4,7 @@ const WINNING_LINES: [u64; 76] = FloatState::generate_lines();
 
 impl FloatState {
     pub fn winner(&self) -> Option<Field> {
-        if self.history.len() < 7 {
+        if self.board.0.count_ones() + self.board.1.count_ones() < 7 {
             return None;
         }
         for &line in WINNING_LINES.iter() {

@@ -65,7 +65,7 @@ impl FloatState {
             let direction = Self::get_direction();
             if direction == DirectionInput::Stop {
                 return Err(());
-            } else if direction == DirectionInput::End {
+            } else if direction == DirectionInput::End && self.is_column_with_space(selection) {
                 return Ok(selection);
             } else {
                 selection = Self::move_coordinate(selection, direction);

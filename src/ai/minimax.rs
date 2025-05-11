@@ -7,7 +7,7 @@ use crate::float_engine::{field::Field, float_state::FloatState};
 use super::cubes_algorithm::CubesAlgorithm;
 
 const STANDARD_DEPTH: i32 = 8;
-static mut TOTAL_PASSES: u64 = 0;
+// static mut TOTAL_PASSES: u64 = 0;
 
 pub struct MiniMax {}
 
@@ -23,7 +23,7 @@ impl MiniMax {
         debug_assert!(depth > -1);
         debug_assert!(state.is_valid());
         let winner = state.winner();
-        unsafe { TOTAL_PASSES += 1 };
+        // unsafe { TOTAL_PASSES += 1 };
         if winner.is_some() {
             if winner.unwrap() != Field::Empty {
                 let score: f32;
@@ -115,22 +115,22 @@ impl CubesAlgorithm for MiniMax {
                     bool_current_player,
                     bool_current_player,
                 );
-                println!("Evaluated {:?}", (legal_move, score));
+                // println!("Evaluated {:?}", (legal_move, score));
                 return (legal_move, score);
             })
             .collect();
-        println!("{:?}", evals);
-        unsafe {
-            println!("Evaluated {} branches", TOTAL_PASSES);
-            TOTAL_PASSES = 0;
-        };
+        // println!("{:?}", evals);
+        // unsafe {
+        //     println!("Evaluated {} branches", TOTAL_PASSES);
+        //     TOTAL_PASSES = 0;
+        // };
         let mut highest = evals[0];
         for eval in evals {
             if eval.1 > highest.1 {
                 highest = eval
             }
         }
-        println!("Picked {:?} with value {:?}", highest.0, highest.1);
+        // println!("Picked {:?} with value {:?}", highest.0, highest.1);
         return *highest.0;
     }
 }

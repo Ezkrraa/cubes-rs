@@ -3,7 +3,6 @@ use super::field::Field;
 #[derive(Clone, Debug)]
 pub struct FloatState {
     pub board: (u64, u64),
-    pub history: Vec<u64>,
 }
 
 impl FloatState {
@@ -15,7 +14,6 @@ impl FloatState {
                 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
                 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
             ),
-            history: vec![],
         };
     }
 
@@ -48,14 +46,11 @@ impl FloatState {
     }
 
     pub fn get_current_player(&self) -> bool {
-        return self.history.len() % 2 == 0;
+        return (self.board.0.count_ones() + self.board.1.count_ones()) % 2 == 0;
     }
 
     fn new_from(old: &Self, coord: u64) -> Self {
         debug_assert!(old.get_on_index(coord) == Field::Empty);
-
-        let mut new_history = old.history.clone();
-        new_history.push(coord);
 
         let mut new_board = old.board.clone();
         if old.get_current_player() {
@@ -63,10 +58,7 @@ impl FloatState {
         } else {
             new_board.1 = new_board.1 | (1 << coord);
         }
-        return Self {
-            board: new_board,
-            history: new_history,
-        };
+        return Self { board: new_board };
     }
 
     pub fn make_move(&self, coord: u64) -> Result<Self, ()> {
