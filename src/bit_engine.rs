@@ -1,3 +1,3 @@
+pub mod bit_state;
 pub mod field;
-pub mod float_state;
 pub mod win_states;

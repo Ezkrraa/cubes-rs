@@ -1,12 +1,10 @@
-use core::f32;
-
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use crate::float_engine::{field::Field, float_state::FloatState};
+use crate::bit_engine::{bit_state::FloatState, field::Field};
 
 use super::cubes_algorithm::CubesAlgorithm;
 
-const STANDARD_DEPTH: i32 = 8;
+const STANDARD_DEPTH: i32 = 5;
 // static mut TOTAL_PASSES: u64 = 0;
 
 pub struct MiniMax {}
@@ -96,7 +94,7 @@ impl MiniMax {
 }
 
 impl CubesAlgorithm for MiniMax {
-    #[allow(static_mut_refs)]
+    //#[allow(static_mut_refs)]
     fn pick_move(&self, state: FloatState) -> u64 {
         let moves: ([u64; 16], usize) = state.get_legal_moves();
         debug_assert!(moves.1 > 0);

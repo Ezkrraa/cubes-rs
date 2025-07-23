@@ -1,8 +1,14 @@
+use std::io;
+
 use colored::Colorize;
 
 use crate::FloatState;
 
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::{
+    event::{Event, KeyCode, KeyEvent, KeyModifiers},
+    execute,
+    terminal::{Clear, ClearType},
+};
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 enum DirectionInput {
@@ -54,6 +60,7 @@ impl FloatState {
         // XYZ coordinate
         let mut selection: u64 = 0;
         loop {
+            execute!(io::stdout(), Clear(ClearType::All)).unwrap();
             println!(
                 "\n\n\n\n\n\nSelection: {} ({}, {}, {})",
                 selection,
@@ -69,6 +76,18 @@ impl FloatState {
                 return Ok(selection);
             } else {
                 selection = Self::move_coordinate(selection, direction);
+            }
+        }
+    }
+
+    pub fn block() {
+        loop {
+            match crossterm::event::read().unwrap() {
+                event => {
+                    if event.is_key_press() {
+                        return;
+                    }
+                }
             }
         }
     }
@@ -115,9 +134,20 @@ impl FloatState {
                         }) => return DirectionInput::Stop,
                         Event::Key(key_event) => match key_event.code {
                             KeyCode::Up => return DirectionInput::Up,
+                            KeyCode::Char('w') => return DirectionInput::Up,
+                            KeyCode::Char('k') => return DirectionInput::Up,
+
                             KeyCode::Down => return DirectionInput::Down,
+                            KeyCode::Char('s') => return DirectionInput::Down,
+                            KeyCode::Char('j') => return DirectionInput::Down,
+
                             KeyCode::Left => return DirectionInput::Left,
+                            KeyCode::Char('a') => return DirectionInput::Left,
+                            KeyCode::Char('h') => return DirectionInput::Left,
+
                             KeyCode::Right => return DirectionInput::Right,
+                            KeyCode::Char('d') => return DirectionInput::Right,
+                            KeyCode::Char('l') => return DirectionInput::Right,
 
                             KeyCode::Esc => return DirectionInput::Stop,
                             KeyCode::Backspace => return DirectionInput::Stop,

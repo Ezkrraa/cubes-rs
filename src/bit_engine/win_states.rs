@@ -1,4 +1,4 @@
-use super::{field::Field, float_state::FloatState};
+use super::{bit_state::FloatState, field::Field};
 
 const WINNING_LINES: [u64; 76] = FloatState::generate_lines();
 
