@@ -12,7 +12,6 @@ fn main() {
     if execute!(io::stdout(), crossterm::terminal::EnterAlternateScreen).is_err() {
         println!("Failed to open alternate screen.")
     }
-    println!("Bye :)");
     run_game_singleplayer();
     execute!(io::stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
 }

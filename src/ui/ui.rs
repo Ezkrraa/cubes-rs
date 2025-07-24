@@ -49,9 +49,9 @@ impl FloatState {
                         print!("{} ", self.get_on_index(z * 16 + y * 4 + x).char())
                     }
                 }
-                print!("\n")
+                print!("\r\n")
             }
-            print!("\n")
+            print!("\r\n")
         }
     }
 
@@ -62,7 +62,7 @@ impl FloatState {
         loop {
             execute!(io::stdout(), Clear(ClearType::All)).unwrap();
             println!(
-                "\n\n\n\n\n\nSelection: {} ({}, {}, {})",
+                "\r\n\r\n\r\n\r\n\r\n\r\nSelection: {} ({}, {}, {})\r",
                 selection,
                 selection % 16 % 4,
                 selection % 16 / 4,
@@ -118,7 +118,7 @@ impl FloatState {
     fn get_direction() -> DirectionInput {
         // if this fails I can't recover much anyways
         crossterm::terminal::enable_raw_mode().unwrap();
-
+	//TODO: disable on leaving
         loop {
             match crossterm::event::read() {
                 Ok(event) => {
